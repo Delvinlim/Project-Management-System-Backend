@@ -3,27 +3,36 @@ import db from "../config/Database.js";
 
 const { DataTypes } = Sequelize;
 
-const Reviews = db.define(
-  "reviews",
+const Admins = db.define(
+  "admins",
   {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    job: {
+    gender: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    comment: {
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    refresh_token: {
       type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    image: {
-      type: DataTypes.STRING,
     },
   },
   {
     freezeTableName: true,
   }
 );
-export default Reviews;
+
+export default Admins;

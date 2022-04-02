@@ -12,9 +12,8 @@ export const verifyToken = (req, res, next) => {
 
   // Verify Token
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decodedToken) => {
-    console.log(decodedToken);
     if(err) return res.sendStatus(403);
-    req.npm = decodedToken.npm;
+    req.userData = decodedToken;
     next();
   })
 }

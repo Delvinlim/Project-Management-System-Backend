@@ -16,6 +16,7 @@ export const getLecturers = async (req, res) => {
 export const lecturerRegister = async (req, res) => {
   // Destruct Request Body
   const { name, nidn, email, gender, phone, password, confirmPassword } = req.body;
+  if(!name || !nidn || !email || !gender || !phone || !password || !confirmPassword) return res.sendStatus(400)
 
   // Validate Password & Confirm Password
   if(password !== confirmPassword) return res.status(400).json({message: "Confirm Password didn't match with Password"});
@@ -25,7 +26,14 @@ export const lecturerRegister = async (req, res) => {
   const hashPassword = await bcrypt.hash(password, salt);
 
   try {
-    // Create Data
+    // Search Existing Lecturer NIDN
+    const lecturer = await Lecturers.findAll({
+      where: {
+        nidn: nidn
+      }
+    })
+    if(lecturer[0]) return res.status(409).json({message: "NIDN already registered"})
+    
     await Lecturers.create({
       'name': name,
       'nidn': nidn,
@@ -41,6 +49,8 @@ export const lecturerRegister = async (req, res) => {
 };
 
 export const lecturerLogin = async(req, res) => {
+  if( !req.body.nidn || !req.body.password ) return res.sendStatus(400)
+
   try {
     const lecturer = await Lecturers.findAll({
       where: {
@@ -48,9 +58,6 @@ export const lecturerLogin = async(req, res) => {
       }
     });
     // Validate Password
-    console.log(lecturer)
-    console.log(req.body)
-    // console.log(res)
     const matchPassword = await bcrypt.compare(req.body.password, lecturer[0].password);
     if(!matchPassword) return res.status(400).json({message: "Wrong Password"});
 

@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import Admins from "../models/AdminModel.js";
 import Lecturers from "../models/LecturerModel.js";
 import Students from "../models/StudentModel.js";
 
@@ -60,9 +61,43 @@ export const lecturerRefreshToken = async(req, res) => {
       if(error) return res.sendStatus(403);
       const lecturerId = lecturer[0].id;
       const lecturerName = lecturer[0].name;
-      const lecturerNpm = lecturer[0].npm;
+      const lecturerNidn = lecturer[0].nidn;
       const lecturerEmail = lecturer[0].email;
-      const accessToken = jwt.sign({lecturerId, lecturerName, lecturerNpm, lecturerEmail}, process.env.ACCESS_TOKEN_SECRET, {
+      const accessToken = jwt.sign({lecturerId, lecturerName, lecturerNidn, lecturerEmail}, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '30s'
+      });
+      res.json({ accessToken })
+    })
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", details: error });
+  }
+}
+
+export const adminRefreshToken = async(req, res) => {
+  try {
+    // Get Refresh Token From User Cookies
+    const refreshToken = req.cookies.refreshToken;
+    
+    // Check Exist Token
+    if(!refreshToken) return res.sendStatus(401);
+
+    const admin = await Admins.findAll({
+      where: {
+        refresh_token: refreshToken
+      }
+    });
+    
+    // Refresh Token doesn't match with the existing one in database
+    if(!admin[0]) return res.sendStatus(403)
+
+    // JWT Verify Refresh Token
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (error, decodedToken) => {
+      console.log(decodedToken);
+      if(error) return res.sendStatus(403);
+      const adminId = admin[0].id;
+      const adminName = admin[0].name;
+      const adminEmail = admin[0].email;
+      const accessToken = jwt.sign({adminId, adminName, adminEmail}, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '30s'
       });
       res.json({ accessToken })

@@ -12,10 +12,13 @@ const Teams = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    uniqueCode: {
-      type: DataTypes.STRING,
-    allowNull: false,
+    group: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
+    managerId: {
+      type: DataTypes.INTEGER,
+    }
   },
   {
     freezeTableName: true,

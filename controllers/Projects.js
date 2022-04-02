@@ -1,17 +1,54 @@
+import Lecturers from "../models/LecturerModel.js";
 import Projects from "../models/ProjectModel.js";
 import Subjects from "../models/SubjectModel.js";
 
 export const getProjects = async (req, res) => {
+  // Get Data from JWT Middleware
+  const userData = req.userData;
+
+  const lecturerId = userData.lecturerId;
+  console.log(userData);
+  if (!lecturerId) return res.sendStatus(401);
+
   try {
-    const projects = await Projects.findAll();
+    // Search Projects
+    const projects = await Projects.findAll({
+      where: {
+        lecturerId: lecturerId,
+      },
+    });
+    if (!projects) return res.status(404).json({ message: "Project not found" });
+
     res.status(200).json(projects);
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", details: error });
   }
+  // if (userData.lecturerId) {
+  // } else {
+  //   const studentId = userData.studentId;
+  //   if (!studentId) return res.sendStatus(401);
+
+  //   try {
+  //     // Search Projects
+  //     const projects = await Projects.findAll({
+  //       where: {
+  //         studentId: studentId,
+  //       },
+  //     });
+  //     res.status(200).json(projects);
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "Internal Server Error", details: error });
+  //   }
+  // }
 };
 
 export const getSingleProject = async (req, res) => {
+  // Get Data from JWT Middleware
   const id = req.params.id;
+  
+  if (!id) return res.sendStatus(400);
 
   try {
     const project = await Projects.findOne({
@@ -28,26 +65,45 @@ export const getSingleProject = async (req, res) => {
 };
 
 export const addProject = async (req, res) => {
+  // Get Data from JWT Middleware
+  const userData = req.userData;
+  const lecturerId = userData.lecturerId;
+  if (!lecturerId) return res.sendStatus(401);
+  
   const { name, description, startDate, endDate, subjectId } = req.body;
-  if (!name || !description || !startDate || !subjectId)
-    return res.sendStatus(400);
+  if (!name || !description || !startDate || !subjectId) return res.sendStatus(400);
 
   try {
     // Search Subject
     const subject = await Subjects.findOne({
       where: {
         id: subjectId,
+        lecturerId: lecturerId
       },
     });
     if (!subject) return res.status(404).json({ message: "Subject not found" });
-
+    
+    // Generate Random Unique Code
+    let projectKey = "";
+    let characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let charactersLength = characters.length;
+    for (let i = 0; i < 8; i++) {
+      projectKey += characters.charAt(
+        Math.floor(Math.random() * charactersLength)
+      );
+    }    
+    
     await Projects.create({
       name: name,
       description: description,
+      projectKey: projectKey,
       startDate: startDate,
       endDate: endDate,
       subjectId: subject.id,
+      lecturerId: lecturerId,
     });
+    
     res.status(200).json({ message: "Successfully created a new project" });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", details: error });

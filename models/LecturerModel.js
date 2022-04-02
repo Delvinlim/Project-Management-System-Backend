@@ -1,5 +1,6 @@
 import { Sequelize } from "sequelize";
 import db from "../config/Database.js";
+import Projects from "./ProjectModel.js";
 import Subjects from "./SubjectModel.js";
 
 const { DataTypes } = Sequelize;
@@ -40,6 +41,7 @@ const Lecturers = db.define(
   }
 );
 
+Lecturers.hasOne(Projects);
 Lecturers.hasOne(Subjects);
 
 export default Lecturers;

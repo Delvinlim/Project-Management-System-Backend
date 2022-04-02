@@ -2,6 +2,13 @@ import Lecturers from "../models/LecturerModel.js";
 import Subjects from "../models/SubjectModel.js";
 
 export const getSubjects = async (req, res) => {
+  const userData = req.userData;
+  const adminId = userData.adminId;
+  console.log((adminId));
+  console.log("hello guys");
+  if (!adminId) return res.sendStatus(401);
+
+  
   try {
     const subjects = await Subjects.findAll();
     res.json(subjects);
@@ -11,6 +18,10 @@ export const getSubjects = async (req, res) => {
 };
 
 export const getSingleSubject = async (req, res) => {
+  const userData = req.userData;
+  const adminId = userData.adminId;
+  if (!adminId) return res.sendStatus(401);
+
   const id = req.params.id;
 
   try {
@@ -20,7 +31,7 @@ export const getSingleSubject = async (req, res) => {
       },
     });
     if (!subject) return res.status(404).json({ message: "Subject not found" });
-    
+
     res.status(200).json(subject);
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", details: error });
@@ -28,6 +39,10 @@ export const getSingleSubject = async (req, res) => {
 };
 
 export const addSubject = async (req, res) => {
+  const userData = req.userData;
+  const adminId = userData.adminId;
+  if (!adminId) return res.sendStatus(401);
+
   const { name, lecturerId } = req.body;
   if (!name || !lecturerId) return res.sendStatus(400);
 
@@ -52,6 +67,10 @@ export const addSubject = async (req, res) => {
 };
 
 export const deleteSubject = async (req, res) => {
+  const userData = req.userData;
+  const adminId = userData.adminId;
+  if (!adminId) return res.sendStatus(401);
+
   const id = req.params.id;
   if (!id) return res.sendStatus(400);
 
@@ -70,8 +89,12 @@ export const deleteSubject = async (req, res) => {
 };
 
 export const updateSubject = async (req, res) => {
+  const userData = req.userData;
+  const adminId = userData.adminId;
+  if (!adminId) return res.sendStatus(401);
+
   const id = req.params.id;
-  const { name, lecturerId, subjectId } = req.body;
+  const { name, lecturerId } = req.body;
   if (!id || !name || !lecturerId) return res.sendStatus(400);
 
   try {

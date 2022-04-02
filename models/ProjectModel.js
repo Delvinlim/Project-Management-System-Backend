@@ -14,6 +14,10 @@ const Projects = db.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    projectKey: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },    
     startDate: {
       type: DataTypes.DATE,
       allowNull: false,
